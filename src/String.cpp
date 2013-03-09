@@ -2,7 +2,7 @@
  * String.cpp
  *
  *  Created on: 04/03/2013
- *      Author: bruno_gouveia
+ *      Author:
  */
 #include "String.h"
 #include <ctype.h>
@@ -13,7 +13,7 @@ String::String(const char * string) {
 	while (string[stringLen] != '\0')
 		stringLen++;
 
-	data = new (stringLen+1) StringData(stringLen + 1);
+	data = new (stringLen) StringData(stringLen);
 
 	for (int i = 0; i <= stringLen; i++)
 		(*this)[i] = string[i];
@@ -25,15 +25,19 @@ String::String(const String& string) {
 }
 
 String::~String() {
-	this->data->refCount--;
-	if (this->data->refCount == 0)
-		delete data;
+	if (data != 0) {
+		this->data->refCount--;
+		if (this->data->refCount == 0)
+			delete data;
+	}
 }
 
 String& String::operator=(const String& string) {
-	data->refCount--;
-	if (data->refCount == 0)
-		delete data;
+	if (data != 0) {
+		data->refCount--;
+		if (data->refCount == 0)
+			delete data;
+	}
 	data = string.data;
 	data->refCount++;
 	return *this;
@@ -45,11 +49,13 @@ String& String::operator=(const char* string) {
 	while (string[stringLen] != '\0')
 		stringLen++;
 
-	data->refCount--;
-	if (data->refCount == 0)
-		delete data;
+	if (data != 0) {
+		data->refCount--;
+		if (data->refCount == 0)
+			delete data;
+	}
 
-	data = new (stringLen + 1) StringData(stringLen + 1);
+	data = new (stringLen) StringData(stringLen);
 
 	for (int i = 0; i <= stringLen; i++)
 		(*this)[i] = string[i];
@@ -58,7 +64,11 @@ String& String::operator=(const char* string) {
 }
 
 int String::length() const {
-	return data->len;
+	if (data != 0) {
+		return data->len;
+	} else {
+		return 0;
+	}
 }
 
 bool String::operator==(const String& string) const {
@@ -84,9 +94,9 @@ int String::compare(const String& string) const {
 			return 1;
 
 	if (length() < string.length())
-		return -1;
-	else if (length() > string.length())
 		return 1;
+	else if (length() > string.length())
+		return -1;
 	else
 		return 0;
 
@@ -125,9 +135,9 @@ int String::compare(const char* string) const {
 			return 1;
 
 	if (length() < stringLen)
-		return -1;
-	else if (length() > stringLen)
 		return 1;
+	else if (length() > stringLen)
+		return -1;
 	else
 		return 0;
 
@@ -137,16 +147,18 @@ String& String::operator+(String& string) const {
 
 	int i;
 	StringData * data = new (string.length() + length()) StringData(string.length() + length());
-	String * nString = new String("");
+	String * nString = new String();
+	data->refCount = 0;
 	nString->data = data;
 
 	for (i = 0; i < length(); i++) {
 		(*nString)[i] = (*this)[i];
 	}
 
-	for (int j = i; j <= string.length() + i; j++) {
+	for (int j = i; j < string.length() + i; j++) {
 		(*nString)[j] = string[j - i];
 	}
+	(*nString)[length() + string.length()] = '\0';
 
 	return *nString;
 
@@ -161,7 +173,8 @@ String& String::operator+(const char* string) const {
 
 	int i;
 	StringData * data = new (stringLen + length()) StringData(stringLen + length());
-	String * nString = new String("");
+	String * nString = new String();
+	data->refCount = 0;
 	nString->data = data;
 
 	for (i = 0; i < length(); i++) {
@@ -200,6 +213,10 @@ char& String::operator[](int i) const {
 }
 char& String::operator[](int i) {
 	return *(data->buffer() + i);
+}
+
+const char * String::toString() const {
+	return (data->buffer());
 }
 
 void String::print() const {

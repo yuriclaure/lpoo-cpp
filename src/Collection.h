@@ -31,7 +31,6 @@ template<typename E>
 void Collection<E>::add(const Collection<E>& collection) {
 	for (Iterator<E>* i = collection.iterator(); i->hasNext();)
 		this->add(i->next());
-
 }
 
 #endif

@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-using namespace std;
-
 class StringData {
 
 	private:
@@ -46,23 +44,39 @@ class String {
 		StringData* data;
 
 	public:
+		String() :
+				data(0) {
+		}
 		String(const char*);
 		String(const String&);
 		~String();
-		String& operator =(const String&);
+		String& operator=(const String&);
 		String& operator=(const char* string);
 		int length() const;
-		bool operator ==(const String&) const;
+		bool operator==(const String&) const;
+		bool operator!=(const String& s) const {
+			return !operator==(s);
+		}
 		int compare(const String&) const;
-		bool operator ==(const char*) const;
+		bool operator==(const char*) const;
+		bool operator!=(const char* s) const {
+			return !operator==(s);
+		}
 		int compare(const char*) const;
-		String& operator +(String&) const;
-		String& operator +(const char*) const;
-		String& operator +=(String&);
-		String& operator +=(const char*);
+		bool operator>(const String& string) const {
+			return compare(string) < 0;
+		}
+		bool operator<(const String& string) const {
+			return compare(string) > 0;
+		}
+		String& operator+(String&) const;
+		String& operator+(const char*) const;
+		String& operator+=(String&);
+		String& operator+=(const char*);
 		String& toLower();
 		String& toUpper();
 		char& operator[](int) const;
 		char& operator[](int);
+		const char * toString() const;
 		void print() const;
 };

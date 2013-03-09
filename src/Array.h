@@ -22,7 +22,9 @@ class ArrayIterator: public Iterator<E> {
 			this->data = data;
 			this->length = length;
 		}
-		virtual ~ArrayIterator() {}
+		virtual ~ArrayIterator() {
+			printf("LOL\n");
+		}
 		virtual bool hasNext() const {
 			return currentPosition < length;
 		}
@@ -38,6 +40,7 @@ class Array: public Collection<E> {
 		int ocupedPositions;
 		int length;
 	public:
+		using Collection<E>::add;
 		Array() :
 				ocupedPositions(0), length(initialSize) {
 			data = new E[initialSize];
@@ -60,7 +63,7 @@ class Array: public Collection<E> {
 		}
 		bool contains(const E& value) const;
 		Iterator<E>* iterator() const {
-			return new ArrayIterator<E>(data, length);
+			return new ArrayIterator<E>(data, ocupedPositions);
 		}
 		void expand();
 		E& operator[](int i) const {
@@ -82,8 +85,10 @@ template<typename E, int initialSize>
 bool Array<E, initialSize>::remove(const E& value) {
 	if (contains(value)) {
 		int i = 0;
-		while ((*this)[i++] != value)
-			;
+		while ((*this)[i] != value) {
+			i++;
+		}
+
 		while (i < ocupedPositions - 1) {
 			(*this)[i] = (*this)[i + 1];
 			i++;
@@ -97,8 +102,8 @@ bool Array<E, initialSize>::remove(const E& value) {
 
 template<typename E, int initialSize>
 bool Array<E, initialSize>::contains(const E& value) const {
-	for (int i = 0; i < ocupedPositions; i++)
-		if ((*this)[i] == value)
+	for (Iterator<E>* i = iterator(); i->hasNext();)
+		if (i->next() == value)
 			return true;
 	return false;
 }
